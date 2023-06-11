@@ -1,8 +1,9 @@
 {
-  "name": "stockx-api",
+  "name": "@albertogferrario/stockx-api",
   "version": "2.0.0",
-  "description": "Scrape sneakers data using dynamic parameters like proxy (rotating support), cookie, country and currency.",
+  "description": "Javascript StockX API",
   "main": "src/index.js",
+  "types": "index.d.ts",
   "scripts": {
     "start": "ts-node src/index.ts",
     "test": "ts-node src/test.ts",
@@ -10,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iyarsius/stockx-scraper.git"
+    "url": "git+https://github.com/albertogferrario/javascript-stockx-api.git"
   },
   "author": "iyarsius#9877",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/iyarsius/stockx-scraper/issues"
+    "url": "https://github.com/albertogferrario/javascript-stockx-api/issues"
   },
-  "homepage": "https://github.com/iyarsius/stockx-scraper#readme",
+  "homepage": "https://github.com/albertogferrario/javascript-stockx-api#readme",
   "keywords": [
     "stockx",
     "scraper",
