@@ -1,5 +1,5 @@
 {
-  "name": "stockx-scraper",
+  "name": "stockx-api",
   "version": "2.0.0",
   "description": "Scrape sneakers data using dynamic parameters like proxy (rotating support), cookie, country and currency.",
   "main": "src/index.js",
