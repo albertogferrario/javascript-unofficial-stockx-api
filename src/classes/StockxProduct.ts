@@ -8,16 +8,16 @@ import { writeFileSync } from "fs";
 
 export class StockxProduct {
     client: StockxClient;
-    name: string;
-    sku: string;
-    description: string;
-    image: string;
-    url: string;
-    uuid: string;
-    seller: string;
-    colorway: string;
+    name!: string;
+    sku!: string;
+    description!: string;
+    image!: string;
+    url!: string;
+    uuid!: string;
+    seller!: string;
+    colorway!: string;
     retailPrice?: number;
-    releaseDate: string;
+    releaseDate!: string;
     lastSale?: number;
     salesLast72Hours?: number;
     totalSales?: number;
@@ -45,10 +45,10 @@ export class StockxProduct {
         this.lastSale = data.market.salesInformation.lastSale;
         this.salesLast72Hours = data.market.salesInformation.salesLast72Hours
         this.totalSales = data.market.deadStock.sold
-        this.retailPrice = parseInt(data.traits.find(t => t.name === "Retail Price")?.value)
-        this.releaseDate = data.traits.find(t => t.name === "Release Date")?.value
+        this.retailPrice = parseInt(data.traits.find((t: { name: string; }) => t.name === "Retail Price")?.value)
+        this.releaseDate = data.traits.find((t: { name: string; }) => t.name === "Release Date")?.value
 
-        this.sizes = data.variants.map(v => {
+        this.sizes = data.variants.map((v: { id: any; sizeChart: { baseSize: any; displayOptions: any; }; market: { bidAskData: { lowestAsk: any; highestBid: any; numberOfAsks: any; numberOfBids: any; }; salesInformation: { lastSale: any; }; }; }) => {
             const options = {
                 uuid: v.id,
                 sizeUS: `${v.sizeChart?.baseSize}`,
@@ -66,6 +66,7 @@ export class StockxProduct {
                 const ticker = sizeValue.split(" ")[0];
                 const sizeType = displayOption.type;
 
+                // @ts-ignore
                 options[`size${ticker}`] = sizeValue.replace(`${sizeType.toUpperCase()} `, "");
             };
 
@@ -87,7 +88,7 @@ export class StockxProduct {
             }
         });
 
-        return response.data.data.product.related.edges.map(edge => new StockxProduct(this.client, {
+        return response.data.data.product.related.edges.map((edge: { node: { title: any; styleId: any; description: any; media: { thumbUrl: any; }; brand: any; traits: any[]; urlKey: any; id: any; }; }) => new StockxProduct(this.client, {
             name: edge.node.title,
             sku: edge.node.styleId,
             description: edge.node.description,

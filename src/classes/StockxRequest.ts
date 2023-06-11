@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { IConfig } from "../types/StockxRequest";
 import dayjs from "dayjs";
 import UserAgent from "user-agents";
@@ -59,6 +61,7 @@ export class StockxRequest extends Axios {
 
         let cookie = "";
         for (const key in data) {
+            // @ts-ignore
             cookie += `${key}=${data[key]}; `;
         }
 
@@ -67,11 +70,13 @@ export class StockxRequest extends Axios {
 
     private _createConfig(): IConfig {
         const proxy = this.client.proxys.shift();
-        this.client.proxys.push(proxy);
+        if (proxy != null) {
+            this.client.proxys.push(proxy);
+        }
 
         const splitedProxy = proxy ? splitproxy(proxy) : undefined;
 
-        return {
+        return <IConfig>{
             httpsAgent: splitedProxy ? new HttpsProxyAgent({
                 host: splitedProxy.host,
                 port: splitedProxy.port,

@@ -3,17 +3,17 @@ import { IFetchLevelsOptions, IStockxVariantOptions, IVariantLevel } from "../ty
 import { StockxClient } from "./StockxClient";
 
 export class StockxVariant {
-    uuid: string;
-    sizeUS: string;
-    sizeEU: string;
-    sizeUK: string;
-    sizeJP: string;
-    sizeKR: string;
-    lowestAsk: number;
-    highestBid: number;
-    lastSale: number;
-    numberOfAsks: number;
-    numberOfBids: number;
+    uuid!: string;
+    sizeUS!: string;
+    sizeEU!: string;
+    sizeUK!: string;
+    sizeJP!: string;
+    sizeKR!: string;
+    lowestAsk!: number;
+    highestBid!: number;
+    lastSale!: number;
+    numberOfAsks!: number;
+    numberOfBids!: number;
 
     constructor(public client: StockxClient, options: IStockxVariantOptions) {
         Object.assign(this, options);
@@ -34,7 +34,7 @@ export class StockxVariant {
             query: require(join(__dirname, "../queries/GetProductPriceLevels.js"))
         });
 
-        return response.data.data.variant.market.priceLevels.edges.map(e => ({
+        return response.data.data.variant.market.priceLevels.edges.map((e: { node: { count: any; amount: string; isLocal: any; }; }) => ({
             count: e.node.count,
             price: parseInt(e.node.amount),
             isLocal: e.node.isLocal,
