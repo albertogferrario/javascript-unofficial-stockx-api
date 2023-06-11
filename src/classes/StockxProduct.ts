@@ -42,8 +42,6 @@ export class StockxProduct {
 
         const data = response.data.data.product;
 
-        if (data.productCategory !== 'sneakers') throw new Error("Invalid product, only support sneakers");
-
         this.lastSale = data.market.salesInformation.lastSale;
         this.salesLast72Hours = data.market.salesInformation.salesLast72Hours
         this.totalSales = data.market.deadStock.sold
