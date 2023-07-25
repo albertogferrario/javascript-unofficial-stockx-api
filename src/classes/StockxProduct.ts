@@ -30,14 +30,14 @@ export class StockxProduct {
 
     async fetch() {
         const response = await this.client.request.post("https://stockx.com/api/p/e", {
-            operationName: "GetProduct",
+            operationName: "GetMarketData",
             variables: {
                 id: this.uuid,
                 currencyCode: this.client.currencyCode,
                 countryCode: this.client.countryCode,
                 marketName: this.client.countryCode,
             },
-            query: require(join(__dirname, "../queries/GetProduct.js"))
+            query: require(join(__dirname, "../queries/GetMarketData.js"))
         });
 
         const data = response.data.data.product;
