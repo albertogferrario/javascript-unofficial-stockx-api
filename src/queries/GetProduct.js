@@ -1,17 +1,17 @@
-module.exports = `query GetProduct($id: String!, $currencyCode: CurrencyCode, $countryCode: String!, $marketName: String) {
+module.exports = `query GetProduct($id: String!, $currencyCode: CurrencyCode, $countryCode: String!, $marketName: String, $skipFavorite: Boolean!) {
   product(id: $id) {
     id
     listingType
+    deleted
+    ...ProductMerchandisingFragment
     ...AffirmCalloutFragment
-    ...BidButtonContentFragment
     ...BreadcrumbsFragment
     ...BreadcrumbSchemaFragment
-    ...BuySellContentFragment
-    ...BuySellFragment
     ...HazmatWarningFragment
     ...HeaderFragment
+    ...NFTHeaderFragment
     ...LastSaleFragment
-    ...LowInventoryBannerFragment
+    ...UrgencyBadgeFragment
     ...MarketActivityFragment
     ...MediaFragment
     ...MyPositionFragment
@@ -24,238 +24,152 @@ module.exports = `query GetProduct($id: String!, $currencyCode: CurrencyCode, $c
     ...ThreeSixtyImageFragment
     ...TrackingFragment
     ...UtilityGroupFragment
-    __typename
+    ...FavoriteProductFragment @skip(if: $skipFavorite)
+  }
 }
+
+fragment ProductMerchandisingFragment on Product {
+  id
+  merchandising {
+    title
+    subtitle
+    image {
+      alt
+      url
+    }
+    body
+    trackingEvent
+    link {
+      title
+      url
+      urlType
+    }
+  }
 }
+
 fragment AffirmCalloutFragment on Product {
   productCategory
   urlKey
   market(currencyCode: $currencyCode) {
     bidAskData(country: $countryCode, market: $marketName) {
       lowestAsk
-      __typename
-}
-__typename
-}
-variants {
+    }
+  }
+  variants {
     id
     market(currencyCode: $currencyCode) {
       bidAskData(country: $countryCode, market: $marketName) {
         lowestAsk
-        __typename
+      }
+    }
   }
-  __typename
 }
-__typename
-}
-__typename
-}
-fragment BidButtonContentFragment on Product {
-  id
-  urlKey
-  sizeDescriptor
-  productCategory
-  lockBuying
-  lockSelling
-  minimumBid(currencyCode: $currencyCode)
-  market(currencyCode: $currencyCode) {
-    bidAskData(country: $countryCode, market: $marketName) {
-      highestBid
-      highestBidSize
-      lowestAsk
-      lowestAskSize
-      numberOfAsks
-      numberOfBids
-      __typename
-}
-__typename
-}
-variants {
-    id
-    market(currencyCode: $currencyCode) {
-      bidAskData(country: $countryCode, market: $marketName) {
-        highestBid
-        highestBidSize
-        lowestAsk
-        lowestAskSize
-        numberOfAsks
-        numberOfBids
-        __typename
-  }
-  __typename
-}
-__typename
-}
-__typename
-}
+
 fragment BreadcrumbsFragment on Product {
   breadcrumbs {
     name
     url
     level
-    __typename
+  }
 }
-__typename
-}
+
 fragment BreadcrumbSchemaFragment on Product {
   breadcrumbs {
     name
     url
-    __typename
-}
-__typename
-}
-fragment BuySellContentFragment on Product {
-  id
-  urlKey
-  sizeDescriptor
-  productCategory
-  lockBuying
-  lockSelling
-  market(currencyCode: $currencyCode) {
-    bidAskData(country: $countryCode, market: $marketName) {
-      highestBid
-      highestBidSize
-      lowestAsk
-      lowestAskSize
-      __typename
-}
-__typename
-}
-variants {
-    id
-    market(currencyCode: $currencyCode) {
-      bidAskData(country: $countryCode, market: $marketName) {
-        highestBid
-        highestBidSize
-        lowestAsk
-        lowestAskSize
-        __typename
   }
-  __typename
 }
-__typename
-}
-__typename
-}
-fragment BuySellFragment on Product {
-  id
-  title
-  urlKey
-  sizeDescriptor
-  productCategory
-  market(currencyCode: $currencyCode) {
-    bidAskData(country: $countryCode, market: $marketName) {
-      highestBid
-      highestBidSize
-      lowestAsk
-      lowestAskSize
-      __typename
-}
-__typename
-}
-media {
-    imageUrl
-    __typename
-}
-variants {
-    id
-    market(currencyCode: $currencyCode) {
-      bidAskData(country: $countryCode, market: $marketName) {
-        highestBid
-        highestBidSize
-        lowestAsk
-        lowestAskSize
-        __typename
-  }
-  __typename
-}
-__typename
-}
-__typename
-}
+
 fragment HazmatWarningFragment on Product {
   id
   hazardousMaterial {
     lithiumIonBucket
-    __typename
+  }
 }
-__typename
-}
+
 fragment HeaderFragment on Product {
   primaryTitle
   secondaryTitle
   condition
   productCategory
-  __typename
+  reciprocal {
+    id
+    urlKey
+    variants {
+      id
+      traits {
+        size
+      }
+    }
+  }
 }
+
+fragment NFTHeaderFragment on Product {
+  primaryTitle
+  secondaryTitle
+  productCategory
+  editionType
+}
+
 fragment LastSaleFragment on Product {
   id
   market(currencyCode: $currencyCode) {
-    ...LastSaleMarket
-    __typename
-}
-variants {
+    statistics(market: $marketName) {
+      ...LastSaleMarketStatistics
+    }
+  }
+  variants {
     id
     market(currencyCode: $currencyCode) {
-      ...LastSaleMarket
-      __typename
+      statistics(market: $marketName) {
+        ...LastSaleMarketStatistics
+      }
+    }
+  }
 }
-__typename
-}
-__typename
-}
-fragment LastSaleMarket on Market {
-  salesInformation {
-    annualHigh
-    annualLow
-    volatility
-    pricePremium
-    lastSale
-    changeValue
+
+fragment LastSaleMarketStatistics on MarketStatistics {
+  lastSale {
+    amount
     changePercentage
-    __typename
+    changeValue
+    sameFees
+  }
 }
-deadStock {
-  sold
-}
-__typename
-}
-fragment LowInventoryBannerFragment on Product {
+
+fragment UrgencyBadgeFragment on Product {
   id
   productCategory
   primaryCategory
   sizeDescriptor
+  listingType
   market(currencyCode: $currencyCode) {
     ...LowInventoryBannerMarket
-    __typename
-}
-variants {
+  }
+  variants {
     id
     market(currencyCode: $currencyCode) {
       ...LowInventoryBannerMarket
-      __typename
+    }
+  }
+  traits {
+    name
+    value
+    visible
+  }
 }
-__typename
-}
-__typename
-}
+
 fragment LowInventoryBannerMarket on Market {
   bidAskData(country: $countryCode, market: $marketName) {
     numberOfAsks
     lowestAsk
-    __typename
-}
-salesInformation {
+  }
+  salesInformation {
     lastSale
- salesLast72Hours
-    __typename
+    salesLast72Hours
+  }
 }
-deadStock {
-sold
-}
-__typename
-}
+
 fragment MarketActivityFragment on Product {
   id
   title
@@ -264,10 +178,9 @@ fragment MarketActivityFragment on Product {
   secondaryTitle
   media {
     smallImageUrl
-    __typename
+  }
 }
-__typename
-}
+
 fragment MediaFragment on Product {
   id
   productCategory
@@ -279,34 +192,35 @@ fragment MediaFragment on Product {
     hidden
     traits {
       size
-      __typename
-}
-__typename
-}
-media {
+    }
+  }
+  media {
     gallery
     all360Images
     imageUrl
-    __typename
+  }
 }
-__typename
-}
+
 fragment MyPositionFragment on Product {
   id
   urlKey
-  __typename
 }
+
 fragment ProductDetailsFragment on Product {
+  id
+  title
+  productCategory
+  browseVerticals
   description
+  gender
   traits {
     name
     value
     visible
     format
-    __typename
+  }
 }
-__typename
-}
+
 fragment ProductMetaTagsFragment on Product {
   id
   urlKey
@@ -320,44 +234,35 @@ fragment ProductMetaTagsFragment on Product {
   breadcrumbs {
     name
     url
-    __typename
-}
-traits {
+  }
+  traits {
     name
     value
-    __typename
-}
-media {
+  }
+  media {
     thumbUrl
     imageUrl
-    __typename
-}
-market(currencyCode: $currencyCode) {
+  }
+  market(currencyCode: $currencyCode) {
     bidAskData(country: $countryCode, market: $marketName) {
       lowestAsk
       numberOfAsks
-      __typename
-}
-__typename
-}
-variants {
+    }
+  }
+  variants {
     id
     hidden
     traits {
       size
-      __typename
-}
-market(currencyCode: $currencyCode) {
+    }
+    market(currencyCode: $currencyCode) {
       bidAskData(country: $countryCode, market: $marketName) {
         lowestAsk
-        __typename
+      }
+    }
   }
-  __typename
 }
-__typename
-}
-__typename
-}
+
 fragment ProductSchemaFragment on Product {
   id
   urlKey
@@ -371,39 +276,35 @@ fragment ProductSchemaFragment on Product {
   traits {
     name
     value
-    __typename
-}
-media {
+  }
+  media {
     thumbUrl
     imageUrl
-    __typename
-}
-market(currencyCode: $currencyCode) {
+  }
+  market(currencyCode: $currencyCode) {
     bidAskData(country: $countryCode, market: $marketName) {
       lowestAsk
       numberOfAsks
-      __typename
-}
-__typename
-}
-variants {
+    }
+  }
+  variants {
     id
     hidden
     traits {
       size
-      __typename
-}
-market(currencyCode: $currencyCode) {
+    }
+    market(currencyCode: $currencyCode) {
       bidAskData(country: $countryCode, market: $marketName) {
         lowestAsk
-        __typename
+      }
+    }
+    gtins {
+      type
+      identifier
+    }
   }
-  __typename
 }
-__typename
-}
-__typename
-}
+
 fragment ScreenTrackerFragment on Product {
   id
   brand
@@ -416,52 +317,44 @@ fragment ScreenTrackerFragment on Product {
       lowestAsk
       numberOfAsks
       numberOfBids
-      __typename
-}
-salesInformation {
+    }
+    salesInformation {
       lastSale
- salesLast72Hours
-      __typename
-}
-deadStock {
-    sold
-}
-__typename
-}
-media {
+    }
+  }
+  media {
     imageUrl
-    __typename
-}
-traits {
+  }
+  traits {
     name
     value
-    __typename
-}
-variants {
+  }
+  variants {
     id
     traits {
       size
-      __typename
-}
-market(currencyCode: $currencyCode) {
+    }
+    market(currencyCode: $currencyCode) {
       bidAskData(country: $countryCode, market: $marketName) {
         highestBid
         lowestAsk
         numberOfAsks
         numberOfBids
-        __typename
-  }
-  salesInformation {
+      }
+      salesInformation {
         lastSale
-        salesLast72Hours
-        __typename
+      }
+    }
   }
-  __typename
+  tags
+  reciprocal {
+    id
+    variants {
+      id
+    }
+  }
 }
-__typename
-}
-__typename
-}
+
 fragment SizeSelectorWrapperFragment on Product {
   id
   ...SizeSelectorFragment
@@ -472,119 +365,104 @@ fragment SizeSelectorWrapperFragment on Product {
   ...SizeChartContentFragment
   ...SizeConversionFragment
   ...SizesAllButtonFragment
-  __typename
 }
+
 fragment SizeSelectorFragment on Product {
   id
   title
   productCategory
+  browseVerticals
   sizeDescriptor
   availableSizeConversions {
     name
     type
-    __typename
-}
-defaultSizeConversion {
+  }
+  defaultSizeConversion {
     name
     type
-    __typename
-}
-variants {
+  }
+  variants {
     id
     hidden
     traits {
       size
-      __typename
-}
-sizeChart {
+    }
+    sizeChart {
       baseSize
       baseType
       displayOptions {
         size
         type
-        __typename
+      }
+    }
   }
-  __typename
 }
-__typename
-}
-__typename
-}
+
 fragment SizeSelectorHeaderFragment on Product {
   sizeDescriptor
   productCategory
   availableSizeConversions {
     name
     type
-    __typename
+  }
 }
-__typename
-}
+
 fragment SizesFragment on Product {
   id
   productCategory
+  listingType
   title
-  __typename
 }
+
 fragment SizesOptionsFragment on Product {
   id
+  listingType
   variants {
     id
     hidden
     group {
       shortCode
-      __typename
-}
-traits {
+    }
+    traits {
       size
-      __typename
-}
-sizeChart {
+    }
+    sizeChart {
       baseSize
       baseType
       displayOptions {
         size
         type
-        __typename
-  }
-  __typename
-}
-market(currencyCode: $currencyCode) {
+      }
+    }
+    market(currencyCode: $currencyCode) {
       bidAskData(country: $countryCode, market: $marketName) {
         lowestAsk
-        __typename
+      }
+    }
   }
-  __typename
 }
-__typename
-}
-__typename
-}
+
 fragment SizeChartFragment on Product {
   availableSizeConversions {
     name
     type
-    __typename
-}
-defaultSizeConversion {
+  }
+  defaultSizeConversion {
     name
     type
-    __typename
+  }
 }
-__typename
-}
+
 fragment SizeChartContentFragment on Product {
   availableSizeConversions {
     name
     type
-    __typename
-}
-defaultSizeConversion {
+  }
+  defaultSizeConversion {
     name
     type
-    __typename
-}
-variants {
+  }
+  variants {
     id
     sizeChart {
       baseSize
@@ -592,64 +470,55 @@ variants {
       displayOptions {
         size
         type
-        __typename
+      }
+    }
   }
-  __typename
 }
-__typename
-}
-__typename
-}
+
 fragment SizeConversionFragment on Product {
   productCategory
+  browseVerticals
   sizeDescriptor
   availableSizeConversions {
     name
     type
-    __typename
-}
-defaultSizeConversion {
+  }
+  defaultSizeConversion {
     name
     type
-    __typename
+  }
 }
-__typename
-}
+
 fragment SizesAllButtonFragment on Product {
   id
   sizeAllDescriptor
   market(currencyCode: $currencyCode) {
     bidAskData(country: $countryCode, market: $marketName) {
       lowestAsk
-      __typename
+    }
+  }
 }
-__typename
-}
-__typename
-}
+
 fragment StatsForNerdsFragment on Product {
   id
   title
   productCategory
   sizeDescriptor
   urlKey
-  __typename
 }
+
 fragment ThreeSixtyImageFragment on Product {
   id
   title
   variants {
     id
-    __typename
-}
-productCategory
-media {
+  }
+  productCategory
+  media {
     all360Images
-    __typename
+  }
 }
-has360Images
-__typename
-}
+
 fragment TrackingFragment on Product {
   id
   productCategory
@@ -660,24 +529,19 @@ fragment TrackingFragment on Product {
     bidAskData(country: $countryCode, market: $marketName) {
       highestBid
       lowestAsk
-      __typename
-}
-__typename
-}
-variants {
+    }
+  }
+  variants {
     id
     market(currencyCode: $currencyCode) {
       bidAskData(country: $countryCode, market: $marketName) {
         highestBid
         lowestAsk
-        __typename
+      }
+    }
   }
-  __typename
 }
-__typename
-}
-__typename
-}
+
 fragment UtilityGroupFragment on Product {
   id
   ...FollowFragment
@@ -687,8 +551,8 @@ fragment UtilityGroupFragment on Product {
   ...PortfolioFragment
   ...PortfolioContentFragment
   ...ShareFragment
-  __typename
 }
+
 fragment FollowFragment on Product {
   id
   productCategory
@@ -697,30 +561,27 @@ fragment FollowFragment on Product {
     id
     traits {
       size
-      __typename
+    }
+  }
 }
-__typename
-}
-__typename
-}
+
 fragment FollowContentFragment on Product {
   title
-  __typename
 }
+
 fragment FollowShareContentFragment on Product {
   id
   title
   sizeDescriptor
+  urlKey
   variants {
     id
     traits {
       size
-      __typename
+    }
+  }
 }
-__typename
-}
-__typename
-}
+
 fragment FollowSuccessFragment on Product {
   id
   title
@@ -728,33 +589,28 @@ fragment FollowSuccessFragment on Product {
   sizeDescriptor
   media {
     smallImageUrl
-    __typename
-}
-variants {
+  }
+  variants {
     id
     traits {
       size
-      __typename
+    }
+  }
 }
-__typename
-}
-__typename
-}
+
 fragment PortfolioFragment on Product {
   id
   title
   productCategory
   variants {
     id
-    __typename
-}
-traits {
+  }
+  traits {
     name
     value
-    __typename
+  }
 }
-__typename
-}
+
 fragment PortfolioContentFragment on Product {
   id
   productCategory
@@ -763,20 +619,20 @@ fragment PortfolioContentFragment on Product {
     id
     traits {
       size
-      __typename
+    }
+  }
 }
-__typename
-}
-__typename
-}
+
 fragment ShareFragment on Product {
   id
   productCategory
   title
   media {
     imageUrl
-    __typename
+  }
 }
-__typename
+
+fragment FavoriteProductFragment on Product {
+  favorite
 }
 `
