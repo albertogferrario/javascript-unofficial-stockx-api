@@ -5,31 +5,34 @@ import dayjs from "dayjs";
 import UserAgent from "user-agents";
 import splitproxy from "split-proxy"
 import { HttpsProxyAgent } from "https-proxy-agent";
-import axios, { Axios } from "axios";
+import axios, { Axios, AxiosHeaders } from "axios";
 import { StockxClient } from "./StockxClient";
 
 export class StockxRequest extends Axios {
     constructor(public client: StockxClient) {
-        super(axios.defaults);
+        super({
+            transformRequest: axios.defaults.transformRequest,
+            transformResponse: axios.defaults.transformResponse,
+        });
 
         // rotate proxies at every request
         this.interceptors.request.use(async (axiosConfig) => {
-            const config = this._createConfig()
+            const config = this._createConfig();
 
-            axiosConfig.headers["user-agent"] = config.userAgent;
-            axiosConfig.headers["cookie"] = config.cookie;
+            axiosConfig.headers.setUserAgent(config.userAgent);
+            axiosConfig.headers.set("cookie", config.cookie);
             axiosConfig.httpsAgent = config.httpsAgent;
 
             if (axiosConfig.url === "https://stockx.com/api/p/e") {
-                axiosConfig.headers["apollographql-client-version"] = "2023.01.01.01";
-                axiosConfig.headers["apollographql-client-name"] = "Iron";
-                axiosConfig.headers["app-platform"] = "Iron";
-                axiosConfig.headers["app-version"] = "2023.01.01.01";
+                axiosConfig.headers.set("apollographql-client-version", "2023.01.01.01")
+                axiosConfig.headers.set("apollographql-client-name", "iron");
+                axiosConfig.headers.set('app-platform', 'Iron')
+                axiosConfig.headers.set('app-version', '2023.01.01.01')
             }
 
-            axiosConfig.headers["accept-language"] = this.client.languageCode.toLowerCase();
-            axiosConfig.headers["accept"] = "application/json";
-            axiosConfig.headers["x-stockx-device-id"] = "x";
+            axiosConfig.headers.set("accept-language", this.client.languageCode.toLowerCase())
+            axiosConfig.headers.setAccept('application/json')
+            axiosConfig.headers.set("x-stockx-device-id", "x");
 
             return axiosConfig;
         });
@@ -57,19 +60,27 @@ export class StockxRequest extends Axios {
                 ["landingPath", "NotLandingPage"],
                 ["groups", encodeURIComponent("C0001:1,C0002:1,C0005:1,C0004:1,C0003:1")]
             ]).toString(),
+        };
+
+        if (this.client.cookie) {
+            const splitedCookie = this.client.cookie.split("; ");
+            for (const cookie of splitedCookie) {
+                const split = cookie.split("=");
+                data[split[0]] = split[1];
+            }
         }
 
         let cookie = "";
         for (const key in data) {
             // @ts-ignore
-            cookie += `${key}=${data[key]}; `;
+            cookie += `${key}=${data[key as keyof typeof data]}; `;
         }
 
         return cookie;
     }
 
     private _createConfig(): IConfig {
-        const proxy = this.client.proxys.shift();
+        const proxy = this.client.proxys.shift() as string;
         if (proxy != null) {
             this.client.proxys.push(proxy);
         }
@@ -83,7 +94,7 @@ export class StockxRequest extends Axios {
                 auth: splitedProxy.login && splitedProxy.password ? `${splitedProxy.login}:${splitedProxy.password}` : undefined
             }) : undefined,
             userAgent: new UserAgent().toString(),
-            cookie: this.client.cookie ? this.client.cookie : this._createCookie()
+            cookie: this._createCookie()
         };
     }
 }
