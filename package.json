@@ -1,7 +1,7 @@
 {
-  "name": "@albertogferrario/stockx-api",
+  "name": "@albertogferrario/unofficial-stockx-api",
   "version": "2.0.9",
-  "description": "Javascript StockX API",
+  "description": "Javascript unofficial StockX API",
   "main": "src/index.js",
   "types": "index.d.ts",
   "scripts": {
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/albertogferrario/javascript-stockx-api.git"
+    "url": "git+https://github.com/albertogferrario/javascript-unofficial-stockx-api.git"
   },
   "author": "iyarsius#9877",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/albertogferrario/javascript-stockx-api/issues"
+    "url": "https://github.com/albertogferrario/javascript-unofficial-stockx-api/issues"
   },
-  "homepage": "https://github.com/albertogferrario/javascript-stockx-api#readme",
+  "homepage": "https://github.com/albertogferrario/javascript-unofficial-stockx-api#readme",
   "keywords": [
     "stockx",
     "scraper",
